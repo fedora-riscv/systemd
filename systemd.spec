@@ -31,7 +31,7 @@ Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
 Version:        249.9
-Release:        1%{?dist}
+Release:        2%{?dist}
 %else
 # determine the build information from local checkout
 Version:        %(tools/meson-vcs-tag.sh . error | sed -r 's/-([0-9])/.^\1/; s/-g/_g/')
@@ -1043,6 +1043,9 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Wed Apr  6 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.9-2
+- Create /etc/resolv.conf symlink if nothing is present yet (#2032085)
+
 * Wed Jan 12 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.9-1
 - Revert the patches for  (#1956022), hopefully fixing (#2039888)
 - Some minor documentation fixes and a fix for journalctl
