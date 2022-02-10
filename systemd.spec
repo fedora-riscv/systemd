@@ -195,6 +195,8 @@ Provides:       system-setup-keyboard = 0.9
 Obsoletes:      systemd-sysv < 206
 # self-obsoletes so that dnf will install new subpackages on upgrade (#1260394)
 Obsoletes:      %{name} < 249~~
+# https://bugzilla.redhat.com/show_bug.cgi?id=2051019
+Conflicts:      %{name}-udev < %{version}-%{release}
 Provides:       systemd-sysv = 206
 Conflicts:      initscripts < 9.56.1
 %if 0%{?fedora}
@@ -303,6 +305,8 @@ Obsoletes:      systemd < 245.6-1
 Provides:       udev = %{version}
 Provides:       udev%{_isa} = %{version}
 Obsoletes:      udev < 183
+# https://bugzilla.redhat.com/show_bug.cgi?id=2051019
+Conflicts:      %{name} < %{version}-%{release}
 
 # Recommends to replace normal Requires deps for stuff that is dlopen()ed
 # used by dissect, integritysetup, veritysetyp, growfs, repart, cryptenroll, home
@@ -1003,6 +1007,10 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Wed May 25 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.5-1
+- Add Conflicts for older systemd and systemd-udev versions to fix issue with
+  files being moved between subpackages (rhbz#2051019)
+
 * Fri May 20 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.5-1
 - Latest upstream bugfix release (one was skipped because we were in freeze)
 - Run sysusers and hwdb and catalog updates also if systemd is not running
