@@ -257,7 +257,6 @@ Provides:       nss-myhostname%{_isa} = 0.4
 Requires(post): coreutils
 Requires(post): sed
 Requires(post): grep
-Requires(post): /usr/bin/getent
 
 %description libs
 Libraries for systemd and udev.
@@ -360,7 +359,6 @@ systemd-importd.
 Summary:        Tools to send journal events over the network
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 License:        LGPLv2+
-Requires(pre):    /usr/bin/getent
 Requires(post):   systemd
 Requires(preun):  systemd
 Requires(postun): systemd
@@ -810,8 +808,6 @@ fi
 systemctl --no-reload preset systemd-oomd.service &>/dev/null || :
 
 %post libs
-%{?ldconfig}
-
 function mod_nss() {
     if [ -f "$1" ] ; then
         # Add nss-systemd to passwd and group
@@ -844,24 +840,6 @@ else
         # possible future authselect configuration
         mod_nss "/etc/authselect/user-nsswitch.conf"
 fi
-
-# check if nobody or nfsnobody is defined
-export SYSTEMD_NSS_BYPASS_SYNTHETIC=1
-if getent passwd nfsnobody &>/dev/null; then
-   test -f /etc/systemd/dont-synthesize-nobody || {
-       echo 'Detected system with nfsnobody defined, creating /etc/systemd/dont-synthesize-nobody'
-       mkdir -p /etc/systemd || :
-       : >/etc/systemd/dont-synthesize-nobody || :
-   }
-elif getent passwd nobody 2>/dev/null | grep -v 'nobody:[x*]:65534:65534:.*:/:/sbin/nologin' &>/dev/null; then
-   test -f /etc/systemd/dont-synthesize-nobody || {
-       echo 'Detected system with incompatible nobody defined, creating /etc/systemd/dont-synthesize-nobody'
-       mkdir -p /etc/systemd || :
-       : >/etc/systemd/dont-synthesize-nobody || :
-   }
-fi
-
-%{?ldconfig:%postun libs -p %ldconfig}
 
 %global udev_services systemd-udev{d,-settle,-trigger}.service systemd-udevd-{control,kernel}.socket systemd-timesyncd.service
 
@@ -1047,6 +1025,7 @@ fi
 %changelog
 * Wed Apr  6 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.9-2
 - Create /etc/resolv.conf symlink if nothing is present yet (#2032085)
+- Drop scriptlet for handling nobody user upgrades from Fedora <28
 
 * Wed Jan 12 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.9-1
 - Revert the patches for  (#1956022), hopefully fixing (#2039888)
