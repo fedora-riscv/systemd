@@ -388,12 +388,11 @@ devices.
 
 %package resolved
 Summary:        Network Name Resolution manager
-Requires(post): %{name}
-Requires(post): grep
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 Obsoletes:      %{name} < 249~~
 Requires:       libidn2.so.0%{?elf_suffix}
 Requires:       libidn2.so.0(IDN2_0.0.0)%{?elf_bits}
+Requires(posttrans): grep
 
 %description resolved
 systemd-resolved is a system service that provides network name resolution to
@@ -943,6 +942,7 @@ fi
 
 %systemd_post systemd-resolved.service
 
+%posttrans resolved
 # Create /etc/resolv.conf symlink.
 # We would also create it using tmpfiles, but let's do this here
 # too before NetworkManager gets a chance. (systemd-tmpfiles invocation above
@@ -1026,6 +1026,7 @@ fi
 * Wed Apr  6 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.9-2
 - Create /etc/resolv.conf symlink if nothing is present yet (#2032085)
 - Drop scriptlet for handling nobody user upgrades from Fedora <28
+- Move part of %%post scriptlet for resolved to %%posttrans (#2072574)
 
 * Wed Jan 12 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.9-1
 - Revert the patches for  (#1956022), hopefully fixing (#2039888)
