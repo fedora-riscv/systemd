@@ -959,11 +959,11 @@ if systemctl -q is-enabled systemd-resolved.service &>/dev/null &&
    ! systemd-analyze cat-config systemd/resolved.conf 2>/dev/null |
         grep -iqE '^DNSStubListener\s*=\s*(no?|false|0|off)\s*$'; then
 
-  if ! test -e /etc/resolv.conf; then
-    ln -sv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+  if ! test -e /etc/resolv.conf && ! test -L /etc/resolv.conf; then
+    ln -sv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf || :
   elif test -d /run/systemd/system/ &&
      ! mountpoint /etc/resolv.conf &>/dev/null; then
-    ln -fsv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+    ln -fsv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf || :
   fi
 fi
 
