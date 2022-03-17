@@ -1004,7 +1004,7 @@ fi
 
 %changelog
 * Thu Mar 17 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.3-7
-- Move libcryptsetup plugins to -udev (#2031873)
+- Move libcryptsetup plugins to -udev (#2064804)
 
 * Mon Mar 14 2022 Michael Catanzaro <mcatanzaro@redhat.com> - 250.3-7
 - Disable default DNS over TLS (#1889901)
