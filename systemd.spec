@@ -30,8 +30,8 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
-Version:        249.9
-Release:        2%{?dist}
+Version:        249.11
+Release:        1%{?dist}
 %else
 # determine the build information from local checkout
 Version:        %(tools/meson-vcs-tag.sh . error | sed -r 's/-([0-9])/.^\1/; s/-g/_g/')
@@ -97,8 +97,6 @@ Patch0003:      0003-rpm-call-needs-restart-in-parallel.patch
 Patch0004:      0004-rpm-restart-user-services-at-the-end-of-the-transact.patch
 Patch0005:      0005-update-helper-also-add-user-reexec-verb.patch
 Patch0006:      0006-update-helper-add-missing-loop-over-user-units.patch
-
-Patch0007:      https://github.com/systemd/systemd/commit/2da7d0bc92.patch
 
 # Downstream-only patches (5000–9999)
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
@@ -1020,7 +1018,8 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
-* Wed Apr  6 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.9-2
+* Wed Apr  6 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.11-1
+- Update to latest bugfix release (#2039854)
 - Create /etc/resolv.conf symlink if nothing is present yet (#2032085)
 - Drop scriptlet for handling nobody user upgrades from Fedora <28
 - Move part of %%post scriptlet for resolved to %%posttrans (#2072574)
