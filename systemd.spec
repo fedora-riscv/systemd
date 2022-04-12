@@ -31,7 +31,7 @@ Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
 Version:        249.11
-Release:        1%{?dist}
+Release:        2%{?dist}
 %else
 # determine the build information from local checkout
 Version:        %(tools/meson-vcs-tag.sh . error | sed -r 's/-([0-9])/.^\1/; s/-g/_g/')
@@ -927,7 +927,8 @@ if [ $1 -eq 0 ] ; then
 fi
 
 %post resolved
-[ $1 -gt 1 ] && exit 0
+[ $1 -eq 1 ] || exit 0
+# Initial installation
 
 # Related to https://bugzilla.redhat.com/show_bug.cgi?id=1943263
 if ls /usr/lib/systemd/libsystemd-shared-24[0-8].so &>/dev/null; then
@@ -938,6 +939,9 @@ fi
 %systemd_post systemd-resolved.service
 
 %posttrans resolved
+[ $1 -eq 1 ] || exit 0
+# Initial installation
+
 # Create /etc/resolv.conf symlink.
 # We would also create it using tmpfiles, but let's do this here
 # too before NetworkManager gets a chance. (systemd-tmpfiles invocation above
@@ -1018,6 +1022,9 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Tue Apr 12 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.11-2
+- Do not touch /etc/resolv.conf on upgrades (#2074122)
+
 * Wed Apr  6 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.11-1
 - Update to latest bugfix release (#2039854)
 - Create /etc/resolv.conf symlink if nothing is present yet (#2032085)
