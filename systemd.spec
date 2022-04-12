@@ -961,11 +961,11 @@ if systemctl -q is-enabled systemd-resolved.service &>/dev/null &&
    ! systemd-analyze cat-config systemd/resolved.conf 2>/dev/null |
         grep -iqE '^DNSStubListener\s*=\s*(no?|false|0|off)\s*$'; then
 
-  if ! test -e /etc/resolv.conf && ! test -L /etc/resolv.conf; then
-    ln -sv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf || :
+  if ! test -e /etc/resolv.conf; then
+    ln -sv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
   elif test -d /run/systemd/system/ &&
      ! mountpoint /etc/resolv.conf &>/dev/null; then
-    ln -fsv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf || :
+    ln -fsv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
   fi
 fi
 
@@ -1024,6 +1024,8 @@ fi
 %changelog
 * Tue Apr 12 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.11-2
 - Do not touch /etc/resolv.conf on upgrades (#2074122)
+- Undo the change to "create /etc/resolv.conf symlink if nothing is
+  present yet" (#2074083)
 
 * Wed Apr  6 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.11-1
 - Update to latest bugfix release (#2039854)
