@@ -939,9 +939,14 @@ fi
 
 %systemd_post systemd-resolved.service
 
+mkdir -p %{_localstatedir}/lib/rpm-state/systemd || :
+: >%{_localstatedir}/lib/rpm-state/systemd/systemd-resolved-initial-installation || :
+
 %posttrans resolved
-[ $1 -eq 1 ] || exit 0
+test -e %{_localstatedir}/lib/rpm-state/systemd/systemd-resolved-initial-installation || exit 0
 # Initial installation
+rm %{_localstatedir}/lib/rpm-state/systemd/systemd-resolved-initial-installation || :
+rmdir %{_localstatedir}/lib/rpm-state/systemd || :
 
 # Create /etc/resolv.conf symlink.
 # We would also create it using tmpfiles, but let's do this here
@@ -962,13 +967,15 @@ if systemctl -q is-enabled systemd-resolved.service &>/dev/null &&
    ! systemd-analyze cat-config systemd/resolved.conf 2>/dev/null |
         grep -iqE '^DNSStubListener\s*=\s*(no?|false|0|off)\s*$'; then
 
-  if ! test -e /etc/resolv.conf; then
-    ln -sv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+  if ! ls -h /etc/resolv.conf &>/dev/null; then
+    ln -sv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf || :
   elif test -d /run/systemd/system/ &&
      ! mountpoint /etc/resolv.conf &>/dev/null; then
-    ln -fsv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+    ln -fsv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf || :
   fi
 fi
+
+exit 0
 
 %global _docdir_fmt %{name}
 
