@@ -30,8 +30,8 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
-Version:        249.11
-Release:        2%{?dist}
+Version:        249.12
+Release:        1%{?dist}
 %else
 # determine the build information from local checkout
 Version:        %(tools/meson-vcs-tag.sh . error | sed -r 's/-([0-9])/.^\1/; s/-g/_g/')
@@ -97,7 +97,6 @@ Patch0003:      0003-rpm-call-needs-restart-in-parallel.patch
 Patch0004:      0004-rpm-restart-user-services-at-the-end-of-the-transact.patch
 Patch0005:      0005-update-helper-also-add-user-reexec-verb.patch
 Patch0006:      0006-update-helper-add-missing-loop-over-user-units.patch
-Patch0007:      https://github.com/systemd/systemd/pull/22127/commits/cabda658cd1ac9c6b7a9230adf8ed1c46a269837.patch
 
 # Downstream-only patches (5000–9999)
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
@@ -1030,6 +1029,15 @@ exit 0
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Thu Apr 28 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.12-1
+- Make the scriptlet for /etc/resolv.conf more robust
+- Update to latest upstream bugfix release (#2016630, various memory access
+  and correctness fixes)
+- User access via the uaccess attribute is extended to more devices
+  (USB analyzers, rfkill devices, AV production controllers, TL866 EPROM readers)
+- hwdb is updated
+- clone3() returns ENOSYS when RestrictNamespaces=yes
+
 * Tue Apr 12 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.11-2
 - Do not touch /etc/resolv.conf on upgrades (#2074122)
 - Undo the change to "create /etc/resolv.conf symlink if nothing is
