@@ -31,7 +31,7 @@ Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
 Version:        249.12
-Release:        1%{?dist}
+Release:        2%{?dist}
 %else
 # determine the build information from local checkout
 Version:        %(tools/meson-vcs-tag.sh . error | sed -r 's/-([0-9])/.^\1/; s/-g/_g/')
@@ -931,18 +931,17 @@ fi
 # Initial installation
 
 # Related to https://bugzilla.redhat.com/show_bug.cgi?id=1943263
-if ls /usr/lib/systemd/libsystemd-shared-24[0-8].so &>/dev/null; then
+if [ "$(echo /usr/lib/systemd/libsystemd-shared-24[0-8].so)" != "/usr/lib/systemd/libsystemd-shared-24[0-8].so" ]; then
     echo "Skipping presets for systemd-resolved.service, seems we are upgrading from old systemd."
     exit 0
 fi
 
 %systemd_post systemd-resolved.service
 
-mkdir -p %{_localstatedir}/lib/rpm-state/systemd || :
-: >%{_localstatedir}/lib/rpm-state/systemd/systemd-resolved-initial-installation || :
+: >%{_localstatedir}/lib/rpm-state/systemd-resolved-initial-installation || :
 
 %posttrans resolved
-test -e %{_localstatedir}/lib/rpm-state/systemd/systemd-resolved-initial-installation || exit 0
+test -e %{_localstatedir}/lib/rpm-state/systemd-resolved-initial-installation || exit 0
 # Initial installation
 rm %{_localstatedir}/lib/rpm-state/systemd/systemd-resolved-initial-installation || :
 rmdir %{_localstatedir}/lib/rpm-state/systemd || :
@@ -1029,6 +1028,9 @@ exit 0
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Fri Apr 29 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.12-2
+- Rewrite %%post scriptlet for systemd-resolved to not use coreutils (#2074083)
+
 * Thu Apr 28 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.12-1
 - Make the scriptlet for /etc/resolv.conf more robust
 - Update to latest upstream bugfix release (#2016630, various memory access
