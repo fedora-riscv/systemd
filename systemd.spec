@@ -913,17 +913,17 @@ fi
 
 %preun resolved
 if [ $1 -eq 0 ] ; then
-        systemctl disable --quiet \
-                systemd-resolved.service \
-                >/dev/null || :
-        if [ -L /etc/resolv.conf ] && \
-            realpath /etc/resolv.conf | grep ^/run/systemd/resolve/; then
-                rm -f /etc/resolv.conf # no longer useful
-                # if network manager is enabled, move to it instead
-                [ -f /run/NetworkManager/resolv.conf ] && \
-                systemctl -q is-enabled NetworkManager.service &>/dev/null && \
-                    ln -fsv ../run/NetworkManager/resolv.conf /etc/resolv.conf
-        fi
+    systemctl disable --quiet \
+            systemd-resolved.service \
+            >/dev/null || :
+    if [ -L /etc/resolv.conf ] && \
+        realpath /etc/resolv.conf | grep ^/run/systemd/resolve/; then
+            rm -f /etc/resolv.conf || :      # no longer useful
+            # if network manager is enabled, move to it instead
+            [ -f /run/NetworkManager/resolv.conf ] && \
+            systemctl -q is-enabled NetworkManager.service &>/dev/null && \
+                ln -fsv ../run/NetworkManager/resolv.conf /etc/resolv.conf || :
+    fi
 fi
 
 %post resolved
