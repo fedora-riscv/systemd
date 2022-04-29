@@ -943,8 +943,7 @@ fi
 %posttrans resolved
 test -e %{_localstatedir}/lib/rpm-state/systemd-resolved-initial-installation || exit 0
 # Initial installation
-rm %{_localstatedir}/lib/rpm-state/systemd/systemd-resolved-initial-installation || :
-rmdir %{_localstatedir}/lib/rpm-state/systemd || :
+rm %{_localstatedir}/lib/rpm-state/systemd-resolved-initial-installation || :
 
 # Create /etc/resolv.conf symlink.
 # We would also create it using tmpfiles, but let's do this here
