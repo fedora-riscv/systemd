@@ -31,7 +31,7 @@ Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
 Version:        249.12
-Release:        2%{?dist}
+Release:        3%{?dist}
 %else
 # determine the build information from local checkout
 Version:        %(tools/meson-vcs-tag.sh . error | sed -r 's/-([0-9])/.^\1/; s/-g/_g/')
@@ -952,24 +952,27 @@ rmdir %{_localstatedir}/lib/rpm-state/systemd || :
 # does not do this, because it's marked with ! and we don't specify --boot.)
 # https://bugzilla.redhat.com/show_bug.cgi?id=1873856
 #
-# *Create* the symlink if nothing is present yet.
-# (https://bugzilla.redhat.com/show_bug.cgi?id=2032085)
-#
-# *Override* the symlink if systemd is running. Don't do it if systemd
-# is not running, because that will immediately break DNS resolution,
+# "Create* or *override* the symlink if systemd is running. Don't do it if
+# systemd is not running, because that will immediately break DNS resolution,
 # since systemd-resolved is also not running
 # (https://bugzilla.redhat.com/show_bug.cgi?id=1891847).
 #
-# Also don't create the symlink to the stub when the stub is disabled (#1891847 again).
+# *Create* the symlink if nothing is present yet
+# (https://bugzilla.redhat.com/show_bug.cgi?id=2032085), even systemd is not
+# running. Sadly, we can't create the symlink the dynamic stub, because
+# that confuses Anaconda (#2074083). Let's create a symlink to the static stub,
+# which should be good enough for most cases.
+#
+# Don't create the symlink to the stub when the stub is disabled (#1891847 again).
 if systemctl -q is-enabled systemd-resolved.service &>/dev/null &&
    ! systemd-analyze cat-config systemd/resolved.conf 2>/dev/null |
-        grep -iqE '^DNSStubListener\s*=\s*(no?|false|0|off)\s*$'; then
+        grep -iqE '^DNSStubListener\s*=\s*(no?|false|0|off)\s*$' &&
+   ! mountpoint /etc/resolv.conf &>/dev/null; then
 
-  if ! ls -h /etc/resolv.conf &>/dev/null; then
-    ln -sv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf || :
-  elif test -d /run/systemd/system/ &&
-     ! mountpoint /etc/resolv.conf &>/dev/null; then
+  if test -d /run/systemd/system/; then
     ln -fsv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf || :
+  elif ! ls -h /etc/resolv.conf &>/dev/null; then
+    ln -sv ../usr/lib/systemd/resolv.conf /etc/resolv.conf || :
   fi
 fi
 
@@ -1028,6 +1031,9 @@ exit 0
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Fri Apr 29 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.12-3
+- Link /etc/resolv.conf to /usr/lib/systemd/resolv.conf (#2074083)
+
 * Fri Apr 29 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.12-2
 - Rewrite %%post scriptlet for systemd-resolved to not use coreutils (#2074083)
 
