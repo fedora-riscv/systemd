@@ -1005,6 +1005,8 @@ fi
 %changelog
 * Fri May 20 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.5-1
 - Latest upstream bugfix release (one was skipped because we were in freeze)
+- Run sysusers and hwdb and catalog updates also if systemd is not running
+  (#2085481)
 
 * Fri Mar 18 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.3-8
 - Fix the wrong file assignment done in previous version
