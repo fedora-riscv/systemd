@@ -30,7 +30,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
-Version:        250.5
+Version:        250.6
 Release:        1%{?dist}
 %else
 # determine the build information from local checkout
@@ -1007,7 +1007,10 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
-* Wed May 25 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.5-1
+* Wed May 25 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.6-1
+- Latest upstream bugfix release (a bunch of memory accesses and leaks
+  fixed based on fuzzer reports, documentation clarifications,
+  #2038634, #2086166, #2084955, #2071034)
 - Add Conflicts for older systemd and systemd-udev versions to fix issue with
   files being moved between subpackages (rhbz#2051019)
 - Supress errors from useradd/groupadd (#2090129)
