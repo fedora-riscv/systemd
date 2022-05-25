@@ -1010,6 +1010,7 @@ fi
 * Wed May 25 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.5-1
 - Add Conflicts for older systemd and systemd-udev versions to fix issue with
   files being moved between subpackages (rhbz#2051019)
+- Supress errors from useradd/groupadd (#2090129)
 
 * Fri May 20 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.5-1
 - Latest upstream bugfix release (one was skipped because we were in freeze)
