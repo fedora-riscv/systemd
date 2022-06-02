@@ -30,7 +30,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
-Version:        250.6
+Version:        250.7
 Release:        1%{?dist}
 %else
 # determine the build information from local checkout
@@ -1007,6 +1007,10 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Thu Jun  2 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.7-1
+- A bunch of man page fixes, a few memory-access correctness fixes,
+  suppress messages about bpf setup in the user manager (#2084955)
+
 * Wed May 25 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.6-1
 - Latest upstream bugfix release (a bunch of memory accesses and leaks
   fixed based on fuzzer reports, documentation clarifications,
