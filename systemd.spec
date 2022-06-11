@@ -31,7 +31,7 @@ Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
 Version:        249.12
-Release:        2%{?dist}
+Release:        4%{?dist}
 %else
 # determine the build information from local checkout
 Version:        %(tools/meson-vcs-tag.sh . error | sed -r 's/-([0-9])/.^\1/; s/-g/_g/')
@@ -960,15 +960,27 @@ rm %{_localstatedir}/lib/rpm-state/systemd-resolved-initial-installation || :
 # (https://bugzilla.redhat.com/show_bug.cgi?id=1891847).
 #
 # Also don't create the symlink to the stub when the stub is disabled (#1891847 again).
+#
+# If we're doing the symlink and the stub file does not exist, create
+# it as a symlink to the static stub so anaconda doesn't replace the
+# symlink or crash. It will be replaced with the dynamic stub on next
+# boot
+# https://bugzilla.redhat.com/show_bug.cgi?id=2074083
 if systemctl -q is-enabled systemd-resolved.service &>/dev/null &&
    ! systemd-analyze cat-config systemd/resolved.conf 2>/dev/null |
-        grep -iqE '^DNSStubListener\s*=\s*(no?|false|0|off)\s*$'; then
+        grep -iqE '^DNSStubListener\s*=\s*(no?|false|0|off)\s*$' &&
+   ! mountpoint /etc/resolv.conf &>/dev/null; then
+
 
   if ! ls -h /etc/resolv.conf &>/dev/null; then
-    ln -sv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf || :
+    mkdir -p /run/systemd/resolve &>/dev/null || :
+    ln -sv ../../../usr/lib/systemd/resolv.conf /run/systemd/resolve/stub-resolv.conf &>/dev/null || :
+    ln -sv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>/dev/null || :
   elif test -d /run/systemd/system/ &&
      ! mountpoint /etc/resolv.conf &>/dev/null; then
-    ln -fsv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf || :
+    mkdir -p /run/systemd/resolve &>/dev/null || :
+    ln -sv ../../../usr/lib/systemd/resolv.conf /run/systemd/resolve/stub-resolv.conf &>/dev/null || :
+    ln -fsv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>/dev/null || :
   fi
 fi
 
@@ -1027,6 +1039,12 @@ exit 0
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Fri Jun 10 2022 Adam Williamson <awilliam@redhat.com> - 249.12-4
+- Create empty stub for resolv.conf symlink if it doesn't exist (#2074083)
+
+* Fri Apr 29 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.12-3
+- Link /etc/resolv.conf to /usr/lib/systemd/resolv.conf (#2074083)
+
 * Fri Apr 29 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.12-2
 - Rewrite %%post scriptlet for systemd-resolved to not use coreutils (#2074083)
 
