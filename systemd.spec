@@ -30,7 +30,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
-Version:        250.7
+Version:        250.8
 Release:        1%{?dist}
 %else
 # determine the build information from local checkout
@@ -91,7 +91,7 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 # Any patches which are "in preparation" upstream should be listed here, rather
 # than in the next section. Packit CI will drop any patches in this range before
 # applying upstream pull requests.
-Patch0000:      0001-sha256-fix-compilation-on-efi-ia32.patch
+
 
 # This is a downstream-only patch, but we don't want it in packit builds.
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
@@ -1010,6 +1010,10 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Thu Jul 14 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.8-1
+- Latest upstream bugfix version
+- Expose /usr/share/user-tmpfiles.d via pkgconfig (#2098553)
+
 * Thu Jun  2 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.7-1
 - A bunch of man page fixes, a few memory-access correctness fixes,
   suppress messages about bpf setup in the user manager (#2084955)
