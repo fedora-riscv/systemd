@@ -1,0 +1,29 @@
+From 471fdebfdea843648acb5abeacf5ae559c3ad77a Mon Sep 17 00:00:00 2001
+From: Yu Watanabe <watanabe.yu+github@gmail.com>
+Date: Mon, 22 Aug 2022 13:36:54 +0900
+Subject: [PATCH 7/7] hostname: make chassis type actually obtained from ACPI
+ when nothing from DMI
+
+Fixes a bug introduced by 8c8b1800e90d4307397300ef32b0f6d95efad057.
+
+Fixes #24384.
+---
+ src/hostname/hostnamed.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/hostname/hostnamed.c b/src/hostname/hostnamed.c
+index 5f09e6d0eb..8c0b63503f 100644
+--- a/src/hostname/hostnamed.c
++++ b/src/hostname/hostnamed.c
+@@ -415,7 +415,7 @@ static char* context_get_chassis(Context *c) {
+         if (!isempty(c->data[PROP_CHASSIS]))
+                 return strdup(c->data[PROP_CHASSIS]);
+ 
+-        if (get_dmi_data("ID_CHASSIS", NULL, &dmi) >= 0)
++        if (get_dmi_data("ID_CHASSIS", NULL, &dmi) > 0)
+                 return dmi;
+ 
+         fallback = fallback_chassis();
+-- 
+2.37.3
+

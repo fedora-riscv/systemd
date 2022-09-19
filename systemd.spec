@@ -93,6 +93,9 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 # https://fedoraproject.org/wiki/Changes/Preset_All_Systemd_Units_on_First_Boot
 Patch0001:      https://github.com/systemd/systemd/commit/93651582ae.patch
 
+# already upstream: https://github.com/systemd/systemd/pull/24385/commits/471fdebfdea843648acb5abeacf5ae559c3ad77a
+Patch0002:      0007-hostname-make-chassis-type-actually-obtained-from-AC.patch
+
 # Those are downstream-only patches, but we don't want them in packit builds:
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
 Patch0490:      use-bfq-scheduler.patch
