@@ -1,7 +1,7 @@
-From 3598aff4d963b2e51ac74d206161da47bfde785c Mon Sep 17 00:00:00 2001
+From bc587d08416e3517b82b764798866154caa11085 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 22 Jul 2021 11:28:36 +0200
-Subject: [PATCH] rpm: call +needs-restart in parallel
+Subject: [PATCH 3/6] rpm: call +needs-restart in parallel
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

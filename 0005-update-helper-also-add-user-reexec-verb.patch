@@ -1,7 +1,7 @@
-From 1262e824a4d638e347ae0d39c973f1f750962533 Mon Sep 17 00:00:00 2001
+From 50336a7d0c584c1731c656e991a317029ed45f84 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Fri, 23 Jul 2021 15:35:23 +0200
-Subject: [PATCH] update-helper: also add "user-reexec" verb
+Subject: [PATCH 5/6] update-helper: also add "user-reexec" verb
 
 This is not called from the systemd.triggers or systemd.macros files. Instead,
 it would be called from the scriptlets in systemd rpm package itself, at the

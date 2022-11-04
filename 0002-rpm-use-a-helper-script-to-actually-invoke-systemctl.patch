@@ -1,7 +1,7 @@
-From 6d825ab2d42d3219e49a192bf99f9c09134a0df4 Mon Sep 17 00:00:00 2001
+From bbfbe1c31046d53640ebb4ef4e4820614fd0864e Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 22 Jul 2021 11:22:33 +0200
-Subject: [PATCH] rpm: use a helper script to actually invoke systemctl
+Subject: [PATCH 2/6] rpm: use a helper script to actually invoke systemctl
  commands
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,10 +39,10 @@ We were planning to raise the required version anyway…
  create mode 100755 src/rpm/systemd-update-helper.in
 
 diff --git a/README b/README
-index 0e5c326deb..a8f23a0d5b 100644
+index 9e5bcab830..2b759e7f5a 100644
 --- a/README
 +++ b/README
-@@ -193,7 +193,7 @@ REQUIREMENTS:
+@@ -195,7 +195,7 @@ REQUIREMENTS:
          python-jinja2
          python-lxml (optional, required to build the indices)
          python >= 3.5
@@ -52,7 +52,7 @@ index 0e5c326deb..a8f23a0d5b 100644
          gcc, awk, sed, grep, and similar tools
          clang >= 10.0, llvm >= 10.0 (optional, required to build BPF programs
 diff --git a/meson.build b/meson.build
-index a2ee15bf32..c6b3e72d23 100644
+index ece21fbd10..5962371e49 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -10,7 +10,7 @@ project('systemd', 'c',
@@ -232,7 +232,7 @@ index 0000000000..9fa49fa131
 +        ;;
 +esac
 diff --git a/src/rpm/triggers.systemd.in b/src/rpm/triggers.systemd.in
-index 247358008a..d29cc33dfd 100644
+index 483207e58c..f56c80c7ca 100644
 --- a/src/rpm/triggers.systemd.in
 +++ b/src/rpm/triggers.systemd.in
 @@ -13,20 +13,11 @@
@@ -297,7 +297,7 @@ index 247358008a..d29cc33dfd 100644
  
  %transfiletriggerin -P 100700 -p <lua> -- {{SYSUSERS_DIR}}
 diff --git a/src/rpm/triggers.systemd.sh.in b/src/rpm/triggers.systemd.sh.in
-index 1631be18c9..83cd7617f8 100644
+index f8c4514313..3b35a4b5c6 100644
 --- a/src/rpm/triggers.systemd.sh.in
 +++ b/src/rpm/triggers.systemd.sh.in
 @@ -14,10 +14,7 @@

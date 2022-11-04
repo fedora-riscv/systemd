@@ -1,7 +1,7 @@
-From 7d9ee15d0fc2af87481ee371b278dbe7e68165ef Mon Sep 17 00:00:00 2001
+From aa56d0bbcef9c2f32845203b50df92492717fea6 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Wed, 7 Jul 2021 14:02:36 +0200
-Subject: [PATCH] rpm: don't specify the full path for systemctl and other
+Subject: [PATCH 1/6] rpm: don't specify the full path for systemctl and other
  commands
 
 We can make things a bit simpler and more readable by not specifying the path.
@@ -94,7 +94,7 @@ index 3a0169a85f..3129ab2d61 100644
  SYSTEMD_INLINE_EOF\
  %{nil}
 diff --git a/src/rpm/triggers.systemd.in b/src/rpm/triggers.systemd.in
-index b33d2212e8..247358008a 100644
+index c10112fe54..483207e58c 100644
 --- a/src/rpm/triggers.systemd.in
 +++ b/src/rpm/triggers.systemd.in
 @@ -16,14 +16,14 @@
@@ -132,34 +132,34 @@ index b33d2212e8..247358008a 100644
      elseif pid > 0 then
          posix.wait(pid)
      end
-@@ -62,7 +62,7 @@ end
- if posix.access("/run/systemd/system") then
-     pid = posix.fork()
-     if pid == 0 then
--        assert(posix.exec("%{_bindir}/systemd-sysusers"))
-+        assert(posix.execp("systemd-sysusers"))
-     elseif pid > 0 then
-         posix.wait(pid)
-     end
-@@ -74,7 +74,7 @@ end
- if posix.access("/run/systemd/system") then
-     pid = posix.fork()
-     if pid == 0 then
--        assert(posix.exec("%{_bindir}/systemd-hwdb", "update"))
-+        assert(posix.execp("systemd-hwdb", "update"))
-     elseif pid > 0 then
-         posix.wait(pid)
-     end
-@@ -86,7 +86,7 @@ end
- if posix.access("/run/systemd/system") then
-     pid = posix.fork()
-     if pid == 0 then
--        assert(posix.exec("%{_bindir}/journalctl", "--update-catalog"))
-+        assert(posix.execp("journalctl", "--update-catalog"))
-     elseif pid > 0 then
-         posix.wait(pid)
-     end
-@@ -111,7 +111,7 @@ end
+@@ -61,7 +61,7 @@ end
+ -- will run before the tmpfiles file trigger.
+ pid = posix.fork()
+ if pid == 0 then
+-    assert(posix.exec("%{_bindir}/systemd-sysusers"))
++    assert(posix.execp("systemd-sysusers"))
+ elseif pid > 0 then
+     posix.wait(pid)
+ end
+@@ -71,7 +71,7 @@ end
+ -- installed or updated in {{UDEV_HWDB_DIR}}.
+ pid = posix.fork()
+ if pid == 0 then
+-    assert(posix.exec("%{_bindir}/systemd-hwdb", "update"))
++    assert(posix.execp("systemd-hwdb", "update"))
+ elseif pid > 0 then
+     posix.wait(pid)
+ end
+@@ -81,7 +81,7 @@ end
+ -- have been installed or updated in {{SYSTEMD_CATALOG_DIR}}.
+ pid = posix.fork()
+ if pid == 0 then
+-    assert(posix.exec("%{_bindir}/journalctl", "--update-catalog"))
++    assert(posix.execp("journalctl", "--update-catalog"))
+ elseif pid > 0 then
+     posix.wait(pid)
+ end
+@@ -105,7 +105,7 @@ end
  if posix.access("/run/systemd/system") then
      pid = posix.fork()
      if pid == 0 then
@@ -168,7 +168,7 @@ index b33d2212e8..247358008a 100644
      elseif pid > 0 then
          posix.wait(pid)
      end
-@@ -123,7 +123,7 @@ end
+@@ -117,7 +117,7 @@ end
  if posix.access("/run/systemd/system") then
      pid = posix.fork()
      if pid == 0 then
@@ -178,7 +178,7 @@ index b33d2212e8..247358008a 100644
          posix.wait(pid)
      end
 diff --git a/src/rpm/triggers.systemd.sh.in b/src/rpm/triggers.systemd.sh.in
-index 22abad9812..1631be18c9 100644
+index e746c316d3..f8c4514313 100644
 --- a/src/rpm/triggers.systemd.sh.in
 +++ b/src/rpm/triggers.systemd.sh.in
 @@ -15,8 +15,8 @@
@@ -192,7 +192,7 @@ index 22abad9812..1631be18c9 100644
  fi
  
  %transfiletriggerpostun -P 1000100 -- {{SYSTEM_DATA_UNIT_DIR}} /etc/systemd/system
-@@ -26,13 +26,13 @@ fi
+@@ -26,30 +26,30 @@ fi
  # have been installed, but before %postun scripts in packages get
  # executed.
  if test -d "/run/systemd/system"; then
@@ -208,32 +208,27 @@ index 22abad9812..1631be18c9 100644
  fi
  
  %transfiletriggerin -P 1000700 -- {{SYSUSERS_DIR}}
-@@ -40,21 +40,21 @@ fi
+ # This script will process files installed in {{SYSUSERS_DIR}} to create
  # specified users automatically. The priority is set such that it
  # will run before the tmpfiles file trigger.
- if test -d "/run/systemd/system"; then
--  %{_bindir}/systemd-sysusers || :
-+  systemd-sysusers || :
- fi
+-%{_bindir}/systemd-sysusers || :
++systemd-sysusers || :
  
  %transfiletriggerin -P 1000700 udev -- {{UDEV_HWDB_DIR}}
  # This script will automatically invoke hwdb update if files have been
  # installed or updated in {{UDEV_HWDB_DIR}}.
- if test -d "/run/systemd/system"; then
--  %{_bindir}/systemd-hwdb update || :
-+  systemd-hwdb update || :
- fi
+-%{_bindir}/systemd-hwdb update || :
++systemd-hwdb update || :
  
  %transfiletriggerin -P 1000700 -- {{SYSTEMD_CATALOG_DIR}}
  # This script will automatically invoke journal catalog update if files
  # have been installed or updated in {{SYSTEMD_CATALOG_DIR}}.
- if test -d "/run/systemd/system"; then
--  %{_bindir}/journalctl --update-catalog || :
-+  journalctl --update-catalog || :
- fi
+-%{_bindir}/journalctl --update-catalog || :
++journalctl --update-catalog || :
  
  %transfiletriggerin -P 1000700 -- {{BINFMT_DIR}}
-@@ -71,14 +71,14 @@ fi
+ # This script will automatically apply binfmt rules if files have been
+@@ -65,14 +65,14 @@ fi
  # tmpfiles automatically. The priority is set such that it will run
  # after the sysusers file trigger, but before any other triggers.
  if test -d "/run/systemd/system"; then

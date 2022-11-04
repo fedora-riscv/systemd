@@ -30,8 +30,8 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
-Version:        249.12
-Release:        5%{?dist}
+Version:        249.13
+Release:        6%{?dist}
 %else
 # determine the build information from local checkout
 Version:        %(tools/meson-vcs-tag.sh . error | sed -r 's/-([0-9])/.^\1/; s/-g/_g/')
@@ -1039,6 +1039,10 @@ exit 0
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Fri Nov  4 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.13-6
+- Latest stable release (various small fixes all over: #2085481, #2086166)
+- #2139355, CVE-2022-3821
+
 * Thu Jun 16 2022 Adam Williamson <awilliam@redhat.com> - 249.12-5
 - Change dynamic stub target to make name resolution work in install %post (#2074083)
 

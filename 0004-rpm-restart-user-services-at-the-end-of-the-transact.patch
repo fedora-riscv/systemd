@@ -1,7 +1,7 @@
-From 36d55958ccc75fa3c91bdd7354d74c910f2f6cc7 Mon Sep 17 00:00:00 2001
+From eb458aa5f37496059540e1db47f8b4f1c69ef206 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Wed, 7 Jul 2021 14:37:57 +0200
-Subject: [PATCH] rpm: restart user services at the end of the transaction
+Subject: [PATCH 4/6] rpm: restart user services at the end of the transaction
 
 This closes an important gap: so far we would reexecute the system manager and
 restart system services that were configured to do so, but we wouldn't do the
@@ -51,7 +51,7 @@ fa97d2fcf64e0558054bee673f734f523373b146.
  6 files changed, 94 insertions(+), 3 deletions(-)
 
 diff --git a/meson.build b/meson.build
-index c6b3e72d23..cafce977c2 100644
+index 5962371e49..e185c27750 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -270,6 +270,7 @@ conf.set_quoted('TMPFILES_DIR',                               tmpfilesdir)
@@ -63,7 +63,7 @@ index c6b3e72d23..cafce977c2 100644
  conf.set_quoted('USER_DATA_UNIT_DIR',                         userunitdir)
  conf.set_quoted('USER_ENV_GENERATOR_DIR',                     userenvgeneratordir)
 diff --git a/meson_options.txt b/meson_options.txt
-index b60261ac24..50f2b7b5e9 100644
+index 2f0f4e7b8f..43b815e433 100644
 --- a/meson_options.txt
 +++ b/meson_options.txt
 @@ -182,6 +182,8 @@ option('xinitrcdir', type : 'string', value : '',
@@ -165,7 +165,7 @@ index f3c75b75fa..f3466ab3c0 100755
          echo "Unknown verb '$command'"
          exit 3
 diff --git a/src/rpm/triggers.systemd.in b/src/rpm/triggers.systemd.in
-index d29cc33dfd..8aeb2049c1 100644
+index f56c80c7ca..4755cdafe8 100644
 --- a/src/rpm/triggers.systemd.in
 +++ b/src/rpm/triggers.systemd.in
 @@ -20,6 +20,14 @@ elseif pid > 0 then
@@ -219,7 +219,7 @@ index d29cc33dfd..8aeb2049c1 100644
  -- This script will process files installed in {{SYSUSERS_DIR}} to create
  -- specified users automatically. The priority is set such that it
 diff --git a/src/rpm/triggers.systemd.sh.in b/src/rpm/triggers.systemd.sh.in
-index 83cd7617f8..694cd94e8d 100644
+index 3b35a4b5c6..8c301f5ed9 100644
 --- a/src/rpm/triggers.systemd.sh.in
 +++ b/src/rpm/triggers.systemd.sh.in
 @@ -16,6 +16,9 @@
