@@ -30,12 +30,12 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
-Version:        251.7
+Version:        251.8
 %else
 # determine the build information from local checkout
 Version:        %(tools/meson-vcs-tag.sh . error | sed -r 's/-([0-9])/.^\1/; s/-g/_g/')
 %endif
-Release:        %autorelease -b 28
+Release:        %autorelease
 
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -89,11 +89,6 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 # than in the next section. Packit CI will drop any patches in this range before
 # applying upstream pull requests.
 
-# PR https://github.com/systemd/systemd/pull/24639
-Patch0002:      0002-test-mountpoint-util-support-running-on-a-mount-name.patch
-
-Patch0003:      https://github.com/systemd/systemd/pull/25004/commits/b146a7345b69de16e88347acadb3783ffeeaad9d.patch
-Patch0004:      https://github.com/systemd/systemd/pull/25004/commits/1f83244641f13a9cb28fdac7e3c17c5446242dfb.patch
 
 # Those are downstream-only patches, but we don't want them in packit builds:
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
