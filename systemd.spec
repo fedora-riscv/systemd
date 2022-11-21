@@ -33,7 +33,7 @@ Version:        253.2
 # determine the build information from local checkout
 Version:        %(tools/meson-vcs-tag.sh . error | sed -r 's/-([0-9])/.^\1/; s/-g/_g/')
 %endif
-Release:        %autorelease
+Release:        %autorelease -e rv64
 
 %global stable %(c="%version"; [ "$c" = "${c#*.*}" ]; echo $?)
 
@@ -66,6 +66,7 @@ Source7:        systemd-journal-remote.xml
 Source8:        systemd-journal-gatewayd.xml
 Source9:        20-yama-ptrace.conf
 Source10:       systemd-udev-trigger-no-reload.conf
+Source11:       20-grubby.install
 Source13:       libsystemd-shared.abignore
 
 Source14:       10-oomd-defaults.conf
@@ -759,6 +760,8 @@ install -Dm0644 -t %{buildroot}%{_pkgdocdir}/ %{SOURCE9}
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1378974
 install -Dm0644 -t %{buildroot}%{system_unit_dir}/systemd-udev-trigger.service.d/ %{SOURCE10}
+
+install -Dm0755 -t %{buildroot}%{_prefix}/lib/kernel/install.d/ %{SOURCE11}
 
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/systemd/ %{SOURCE13}
 
