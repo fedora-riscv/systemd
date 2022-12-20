@@ -1,0 +1,76 @@
+From c5d344ea8b2e8dc6951360a29c5e920199c81c65 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 13 Dec 2022 11:15:17 +0100
+Subject: [PATCH] coredump: cescape invalid json data before logging
+
+In both cases, the json string is short, so we can print it, which is useful
+for diagnosing invalid data in packages. But we need escape non-printable
+characters.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=2152685
+
+I went over the rest of the codebase, and it seems that other calls to
+json_parse() don't have this problem.
+
+(cherry picked from commit c5966ab5bf43b4fb45998760beaffa6c7f9e8a9e)
+(cherry picked from commit 57ab4e2d47dd7c03113b66b78175242a597bd0dc)
+(cherry picked from commit 6208326afb592e901d5fc8cf1b09fb764e1fdb6b)
+---
+ src/coredump/coredumpctl.c | 8 +++++---
+ src/shared/elf-util.c      | 7 +++++--
+ 2 files changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/src/coredump/coredumpctl.c b/src/coredump/coredumpctl.c
+index 2904de3728..efdca36f43 100644
+--- a/src/coredump/coredumpctl.c
++++ b/src/coredump/coredumpctl.c
+@@ -15,6 +15,7 @@
+ #include "bus-util.h"
+ #include "compress.h"
+ #include "def.h"
++#include "escape.h"
+ #include "fd-util.h"
+ #include "format-table.h"
+ #include "fs-util.h"
+@@ -733,9 +734,10 @@ static int print_info(FILE *file, sd_journal *j, bool need_space) {
+                 _cleanup_(json_variant_unrefp) JsonVariant *v = NULL;
+ 
+                 r = json_parse(pkgmeta_json, 0, &v, NULL, NULL);
+-                if (r < 0)
+-                        log_warning_errno(r, "json_parse on %s failed, ignoring: %m", pkgmeta_json);
+-                else {
++                if (r < 0) {
++                        _cleanup_free_ char *esc = cescape(pkgmeta_json);
++                        log_warning_errno(r, "json_parse on \"%s\" failed, ignoring: %m", strnull(esc));
++                } else {
+                         const char *module_name;
+                         JsonVariant *module_json;
+ 
+diff --git a/src/shared/elf-util.c b/src/shared/elf-util.c
+index 644fbae9ce..f9d0e5bc60 100644
+--- a/src/shared/elf-util.c
++++ b/src/shared/elf-util.c
+@@ -15,6 +15,7 @@
+ #include "dlfcn-util.h"
+ #include "elf-util.h"
+ #include "errno-util.h"
++#include "escape.h"
+ #include "fileio.h"
+ #include "fd-util.h"
+ #include "format-util.h"
+@@ -328,8 +329,10 @@ static int parse_package_metadata(const char *name, JsonVariant *id_json, Elf *e
+                                 _cleanup_(json_variant_unrefp) JsonVariant *v = NULL, *w = NULL;
+ 
+                                 r = json_parse(payload, 0, &v, NULL, NULL);
+-                                if (r < 0)
+-                                        return log_error_errno(r, "json_parse on %s failed: %m", payload);
++                                if (r < 0) {
++                                        _cleanup_free_ char *esc = cescape(payload);
++                                        return log_error_errno(r, "json_parse on \"%s\" failed: %m", strnull(esc));
++                                }
+ 
+                                 /* First pretty-print to the buffer, so that the metadata goes as
+                                  * plaintext in the journal. */
+-- 
+2.38.1
+

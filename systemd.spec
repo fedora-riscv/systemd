@@ -30,7 +30,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
-Version:        250.8
+Version:        250.9
 Release:        1%{?dist}
 %else
 # determine the build information from local checkout
@@ -91,7 +91,7 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 # Any patches which are "in preparation" upstream should be listed here, rather
 # than in the next section. Packit CI will drop any patches in this range before
 # applying upstream pull requests.
-
+Patch0001:      0001-coredump-cescape-invalid-json-data-before-logging.patch
 
 # This is a downstream-only patch, but we don't want it in packit builds.
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
