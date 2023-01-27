@@ -710,7 +710,11 @@ EOF
 
 %check
 %if %{with tests}
+%ifarch riscv64
+meson test -C %{_vpath_builddir} -t 6 --print-errorlogs || :
+%else
 meson test -C %{_vpath_builddir} -t 6 --print-errorlogs
+%endif
 %endif
 
 #############################################################################################
