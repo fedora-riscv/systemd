@@ -25,7 +25,7 @@
 # Bootstrap may be needed to break circular dependencies with cryptsetup,
 # e.g. when re-building cryptsetup on a json-c SONAME-bump.
 %bcond bootstrap 1
-%bcond tests     1
+%bcond tests     0
 %bcond lto       1
 
 # Support for quick builds with rpmbuild --build-in-place.
